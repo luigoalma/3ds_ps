@@ -1,0 +1,74 @@
+BasicInfo:
+  Title                   : ps
+  CompanyCode             : "00"
+  ProductCode             : lennybuilder # I'll join the lennys
+  ContentType             : Application
+  Logo                    : None
+
+TitleInfo:
+  UniqueId                : 0x31
+  Category                : Base
+  Version                 : 2
+
+Option:
+  UseOnSD                 : false
+  FreeProductCode         : true # Removes limitations on ProductCode
+  MediaFootPadding        : false # If true CCI files are created with padding
+  EnableCrypt             : false # Enables encryption for NCCH and CIA
+  EnableCompress          : true # Compresses exefs code
+
+AccessControlInfo:
+  IdealProcessor                : 1
+  AffinityMask                  : 2
+
+  Priority                      : 14
+
+  DisableDebug                  : true
+  EnableForceDebug              : false
+  CanWriteSharedPage            : false
+  CanUsePrivilegedPriority      : false
+  CanUseNonAlphabetAndNumber    : false
+  PermitMainFunctionArgument    : false
+  CanShareDeviceMemory          : false
+  RunnableOnSleep               : true
+  SpecialMemoryArrange          : false
+  ResourceLimitCategory         : Other
+
+  CoreVersion                   : 2
+  DescVersion                   : 2
+
+  MemoryType                    : Base      # Application / System / Base
+  HandleTableSize: 0
+
+  MemoryMapping:
+    # none needed
+
+  IORegisterMapping:
+    # none needed
+
+  SystemCallAccess:
+    ExitProcess: 3
+    SleepThread: 10
+    CloseHandle: 35
+    GetSystemTick: 40
+    ConnectToPort: 45
+    SendSyncRequest: 50
+    GetProcessId: 53
+    Break: 60
+    AcceptSession: 74
+    ReplyAndReceive: 79
+
+  InterruptNumbers:
+  ServiceAccessControl:
+    - pxi:ps9
+    - mcu::PLS
+    - fs:USER
+  FileSystemAccess:
+    - CategorySystemApplication
+
+SystemControlInfo:
+  SaveDataSize: 0KB # It doesn't use any save data.
+  RemasterVersion: 0
+  StackSize: 0x1000
+  Dependency:
+    MCU: 0x0004013000001F02
