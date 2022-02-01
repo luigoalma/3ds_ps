@@ -6,7 +6,8 @@ typedef struct {
 	u8 mod[0x100];
 	u8 exp[0x100];
 	s32 rsa_bit_size;
-	u32 padding; // likely
+	u8 is_priv_exp; // 1 if private exp, 0 otherwise
+	u8 padding[3];
 } PS_RSA_Context;
 
 typedef enum {
