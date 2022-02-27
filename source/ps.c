@@ -401,6 +401,35 @@ static void PS_IPCSession(IPC_WorkData* ipc_data) {
 			cmdbuf[3] = (u32)buf;
 		}
 		break;
+	#if defined PS_CUSTOM_COMMAND && PS_CUSTOM_COMMAND == 1
+	case 0x401:
+		if (!IPC_CompareHeader(cmdbuf[0], 0x401, 0, 6) || !IPC_Is_Desc_StaticBufferId(cmdbuf[1], 0) || !IPC_Is_Desc_Buffer(cmdbuf[3], IPC_BUFFER_R) || !IPC_Is_Desc_Buffer(cmdbuf[5], IPC_BUFFER_W)) {
+			cmdbuf[0] = IPC_MakeHeader(0x0, 1, 0);
+			cmdbuf[1] = OS_INVALID_IPC_PARAMATER;
+		} else {
+			const PS_RSA_Context *rsa = (PS_RSA_Context*)cmdbuf[2];
+			void *inbuf = (void*)cmdbuf[4];
+			void *outbuf = (void*)cmdbuf[6];
+
+			size_t rsa_insize = IPC_Get_Desc_StaticBuffer_Size(cmdbuf[1]);
+
+			if (rsa_insize < sizeof(PS_RSA_Context)) {
+				// wipe whats not provided to disallow reuse of data leftover in static buf index 0
+				_memset(&((u8*)rsa)[rsa_insize], 0, sizeof(PS_RSA_Context) - rsa_insize);
+			}
+
+			size_t insize = IPC_Get_Desc_Buffer_Size(cmdbuf[3]);
+			size_t outsize = IPC_Get_Desc_Buffer_Size(cmdbuf[5]);
+
+			cmdbuf[1] = PXIPS9_CryptRsa(rsa, inbuf, outbuf, insize < outsize ? insize : outsize);
+			cmdbuf[0] = IPC_MakeHeader(0x401, 1, 4);
+			cmdbuf[2] = IPC_Desc_Buffer(insize, IPC_BUFFER_R);
+			cmdbuf[3] = (u32)inbuf;
+			cmdbuf[4] = IPC_Desc_Buffer(outsize, IPC_BUFFER_W);
+			cmdbuf[5] = (u32)outbuf;
+		}
+		break;
+	#endif
 	default:
 		cmdbuf[0] = IPC_MakeHeader(0x0, 1, 0);
 		cmdbuf[1] = OS_INVALID_HEADER;

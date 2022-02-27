@@ -6,6 +6,8 @@ Result pxiPs9Init(void);
 
 void pxiPs9Exit(void);
 
+Result PXIPS9_CryptRsa(const PS_RSA_Context* rsa, const void* inbuf, void* outbuf, size_t buf_size);
+
 Result PXIPS9_SignRsaSha256(const PS_RSA_Context* rsa, const void* sha256, void* sigbuf, size_t sigbuf_size);
 
 Result PXIPS9_VerifyRsaSha256(const PS_RSA_Context* rsa, const void* sha256, const void* sigbuf, size_t sigbuf_size);

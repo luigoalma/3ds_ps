@@ -28,12 +28,29 @@ void pxiPs9Exit(void)
 	svcCloseHandle(pxiPs9Handle);
 }
 
-// does it really take a PS_RSA_Context?
-// or maybe takes an object similar to PS_RSA_Context?
-// cause how are you gonna sign with a mod and public exponent?
-// it should just not work!
-// unless its an object sized like a PS_RSA_Context, but its not the same
-// wouldn't know by just writing code and reversing PS alone, need to run in a real world test example
+Result PXIPS9_CryptRsa(const PS_RSA_Context* rsa, const void* inbuf, void* outbuf, size_t buf_size) {
+
+	Result res = 0;
+	u32* cmdbuf = getThreadCommandBuffer();
+
+	cmdbuf[0] = IPC_MakeHeader(0x1,3,6); // 0x100C6
+	// not known what [1] and [2] are set to, is unused, but this is my extimated guess with other pxips9 calls 
+	cmdbuf[1] = (buf_size < (u32)(rsa->rsa_bit_size >> 3)) ? buf_size : (u32)(rsa->rsa_bit_size >> 3);
+	cmdbuf[2] = sizeof(PS_RSA_Context);
+	cmdbuf[3] = false; // recent firms dont matter value here but what is it? 1 = encrypt vs 0 = decrypt?
+	cmdbuf[4] = IPC_Desc_PXIBuffer(cmdbuf[1], 0, SET_READONLY);
+	cmdbuf[5] = (u32)inbuf;
+	cmdbuf[6] = IPC_Desc_PXIBuffer(sizeof(PS_RSA_Context), 1, SET_READONLY);
+	cmdbuf[7] = (u32)rsa;
+	cmdbuf[8] = IPC_Desc_PXIBuffer(cmdbuf[1], 2, false);
+	cmdbuf[9] = (u32)outbuf;
+
+	if(R_FAILED(res = svcSendSyncRequest(pxiPs9Handle)))
+		return res;
+
+	return (Result)cmdbuf[1];
+}
+
 Result PXIPS9_SignRsaSha256(const PS_RSA_Context* rsa, const void* sha256, void* sigbuf, size_t sigbuf_size) {
 
 	Result res = 0;
